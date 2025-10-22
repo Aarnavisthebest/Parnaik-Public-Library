@@ -1,483 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Parnaik Private Library</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    <title>Google</title>
+    <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
     <style>
-        :root {
-            --bg: #0f1220;
-            --panel: #141830;
-            --text: #e9ecf8;
-            --muted: #a9b1d6;
-            --brand: #7aa2f7;
-            --accent: #9ece6a;
-            --radius: 14px;
-        }
-
-        * {
-            box-sizing: border-box
-        }
-
+        html,
         body {
+            height: 100%;
             margin: 0;
-            font-family: system-ui, Segoe UI, Roboto, Arial;
-            background: #0f1220;
-            color: var(--text)
-        }
-
-        header {
-            padding: 22px;
-            background: linear-gradient(90deg, var(--brand), var(--accent));
-            color: #071022;
-            text-align: center
-        }
-
-        nav {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-            background: #141830;
-            padding: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 10
-        }
-
-        .tab {
-            background: #0f1328;
-            color: var(--muted);
-            padding: 8px 14px;
-            border-radius: 999px;
-            cursor: pointer;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, .08)
-        }
-
-        .tab.active {
-            background: #1a2144;
-            color: #fff;
-            border-color: var(--brand)
-        }
-
-        .wrap {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 16px
-        }
-
-        .card {
-            background: linear-gradient(180deg, #151a35 0%, #121633 80%);
-            padding: 18px;
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
-            border: 1px solid rgba(255, 255, 255, .06)
-        }
-
-        h2 {
-            margin: 0 0 8px
-        }
-
-        .muted {
-            color: var(--muted)
-        }
-
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 16px
-        }
-
-        iframe {
-            width: 100%;
-            height: 60vh;
-            border: 0;
-            border-radius: 12px;
-            background: #fff
-        }
-
-        .shelf {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 16px
-        }
-
-        .book {
-            background: #0f1328;
-            border-radius: 12px;
             overflow: hidden;
-            cursor: pointer;
-            transition: transform .2s, box-shadow .2s;
-            border: 1px solid rgba(255, 255, 255, .06)
         }
 
-        .book:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, .5)
-        }
-
-        .book img {
+        #main {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
             width: 100%;
-            height: 240px;
-            object-fit: cover
-        }
-
-        .book-info {
-            padding: 10px
-        }
-
-        .book-title {
-            font-weight: 800;
-            font-size: 1rem
-        }
-
-        .book-author {
-            font-size: .9rem;
-            color: var(--muted)
-        }
-
-        /* Reader “page” */
-        #reader {
-            display: none
-        }
-
-        .reader-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px
-        }
-
-        .btn {
-            appearance: none;
             border: 0;
-            padding: 10px 14px;
-            border-radius: 10px;
+        }
+
+        #slope {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 300px;
+            /* small corner size */
+            height: 200px;
+            border: 2px solid #ccc;
+            display: none;
+            /* hidden by default */
+            z-index: 999;
+        }
+
+        #toggle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
             cursor: pointer;
-            font-weight: 700
-        }
-
-        .btn.back {
-            background: #1a2144;
-            color: #e9ecf8;
-            border: 1px solid rgba(255, 255, 255, .12)
-        }
-
-        .btn.primary {
-            background: linear-gradient(90deg, var(--brand), #597adf);
-            color: #071022
-        }
-
-        .reader-meta {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            color: var(--muted);
-            font-size: .95rem
-        }
-
-        .reader-cover {
-            width: 140px;
-            height: 210px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 1px solid rgba(255, 255, 255, .06)
-        }
-
-        .reader-body {
-            margin-top: 12px
-        }
-
-        .reader-frame {
-            width: 100%;
-            height: 70vh;
-            border: 0;
-            border-radius: 12px;
-            background: #fff
+            font-size: 18px;
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <h1>Parnaik Private Library</h1>
-    </header>
+    <div id="toggle">+</div>
 
-    <nav>
-        <button class="tab active" onclick="show('home')">Home</button>
-        <button class="tab" onclick="show('catalog')">Catalog</button>
-        <button class="tab" onclick="show('indian')">Indian Tales</button>
-        <button class="tab" onclick="show('online')">Online Resources</button>
-        <button class="tab" onclick="show('elibrary')">eLibrary</button>
-    </nav>
+    <!-- Main Google iframe -->
+    <iframe id="main" src="https://www.google.com/webhp?igu=1" allowfullscreen></iframe>
 
-    <div class="wrap">
-
-        <!-- HOME -->
-        <section id="home" class="card">
-            <h2>Home</h2>
-            <p class="muted">Welcome to the Parnaik Private Library. WE are still under construction, but feel free to explore our Online Resources</p>
-        </section>
-
-        <!-- CATALOG -->
-        <section id="catalog" class="card" style="display:none">
-            <h2>Catalog</h2>
-            <p class="muted">PPL Catalog</p>
-            <p class="muted">The full catalog is not available yet. Please check back later.</p>
-        </section>
-
-        <!-- INDIAN TALES -->
-        <section id="indian" class="card" style="display:none">
-            <h2>Indian Tales</h2>
-            <p class="muted">The majority of our collection is Indian tales and Amar Chitra Katha stories — mythological
-                epics, Panchatantra fables, and folk legends retold for young readers. We prioritize cultural context
-                and accessible storytelling.</p>
-        </section>
-
-        <!-- ONLINE RESOURCES -->
-        <section id="online" class="card" style="display:none">
-            <h2>Online Resources</h2>
-            <h3>Iframe Games</h3>
-            <p class="muted">These embeds are from providers that permit iframe usage. If one fails due to remote
-                blocking, open it in a new tab.</p>
-            <div class="games-grid">
-                <div class="card">
-                    <p class="muted">Game 1: Chess (Playpager)</p>
-                    <iframe src="https://playpager.com/embed/chess/index.html" title="Chess"></iframe>
-                </div>
-                <div class="card">
-                    <p class="muted">Onlinegame.io</p>
-                    <iframe src="https://www.onlinegames.io/" title="Tic Tac Toe"></iframe>
-                </div>
-                <div class="card">
-                    <p class="muted">Game 3: Checkers (Playpager)</p>
-                    <iframe src="https://playpager.com/embed/checkers/index.html" title="Checkers"></iframe>
-                </div>
-            </div>
-        </section>
-
-        <!-- ELIBRARY: grid page -->
-        <section id="elibrary" class="card" style="display:none">
-            <h2>eLibrary</h2>
-            <p class="muted">Click a book to open its reader page below. Our Elibrary is still under constuction so you may expect delays.</p>
-
-            <div class="shelf">
-                <!-- // COPY THIS BLOCK FOR EACH BOOK -->
-                <div class="book"
-                    onclick="openReaderPage('Amulet #1','Kazi Kibushi','https://online.flipbuilder.com/fdyv/xvsi/','https://online.flipbuilder.com/fdyv/xvsi/')">
-                    <img src="https://via.placeholder.com/400x600?text=Book+1" alt="Book 1">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #1</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book"
-                    onclick="openReaderPage('Amulet #2','Kazi Kibushi','https://via.placeholder.com/400x600?text=Book+2','https://online.flipbuilder.com/fdyv/lgde/')">
-                    <img src="https://via.placeholder.com/400x600?text=Book+2" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #2</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Amulet #3','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/qypf/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #3</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #4','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/lgxr/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #4</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #5','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/etky/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #5</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #6','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/umxw/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #6</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #7','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/mofr/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #7</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #8','Kazi Kibushi','','https://online.flipbuilder.com/fdyv/nfpm/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #8</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-
-                <div class="book" onclick="openReaderPage('Amulet #9','Kazi Kibushi','','https://reader.z-library.ec/read/39b3bea6bff4d597e56ece83b7d3ed4433e4ce911e83d65d18292477e2164a14/29406099/76b123/amulet-vol-9-waverider.html?client_key=1fFLi67gBrNRP1j1iPy1&extension=pdf&signature=1c30b7bd4a78ba9e1b70a123be1ea293cc819043ebc6eedcfa74d058e777e187')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Amulet #9</div>
-                        <div class="book-author">Kazi Kibushi</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Mockingjay','Suzanne Collins','','https://online.flipbuilder.com/fdyv/pakm/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Mockingjay</div>
-                        <div class="book-author">Suzanne Collins</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('The Hunger Games','Suzanne Collins','','https://online.flipbuilder.com/fdyv/ytzp/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">The Hunger Games</div>
-                        <div class="book-author">Suzanne Collins</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Rowley Jefferson diary','Jeff Kinney','','https://online.flipbuilder.com/fdyv/bvmu/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Rowley Jefferson's Diary</div>
-                        <div class="book-author">Jeff Kinney</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Rowley Jefferson diary: Adventure','Jeff Kinney','','https://online.flipbuilder.com/fdyv/islf/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Rowley Jefferson's Diary:Adventure</div>
-                        <div class="book-author">Jeff Kinney</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Rowley Jefferson diary:Spooky Stories','Jeff Kinney','','https://online.flipbuilder.com/fdyv/rbfe/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Rowley Jefferson's Diary:Spooky Stories</div>
-                        <div class="book-author">Jeff Kinney</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Greg Heffley: Deep End','Jeff Kinney','','https://online.flipbuilder.com/fdyv/vbpl/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Greg Heffley: The Deep End</div>
-                        <div class="book-author">Jeff Kinney</div>
-                    </div>
-                </div>
-                <div class="book"
-                    onclick="openReaderPage('Greg Heffley: The Meltdown','Jeff Kinney','','https://online.flipbuilder.com/fdyv/wxbz/')">
-                    <img src="google.com" alt="Book 2">
-                    <div class="book-info">
-                        <div class="book-title">Greg Heffley: The Meltdown</div>
-                        <div class="book-author">Jeff Kinney</div>
-                    </div>
-                </div>
-
-                
-                <!-- // CONTINUE DUPLICATING THIS .book BLOCK FOR MORE TITLES -->
-            </div>
-        </section>
-
-        <!-- ELIBRARY: reader “page” (same document) -->
-        <section id="reader" class="card">
-            <div class="reader-head">
-                <div>
-                    <h2 id="rTitle">Reader</h2>
-                    <div class="reader-meta">
-                        <img id="rCover" class="reader-cover" src="" alt="">
-                        <span id="rAuthor"></span>
-                    </div>
-                </div>
-                <div style="display:flex;gap:8px">
-                    <button class="btn back" onclick="goBack()">⬅ Back to eLibrary</button>
-                    <a id="rExternal" class="btn primary" target="_blank">Open in new tab</a>
-                </div>
-            </div>
-            <div class="reader-body">
-                <!-- // YOUR BOOK IFRAMES WILL LOAD INTO THIS ELEMENT -->
-                <iframe id="rFrame" class="reader-frame" src=""></iframe>
-            </div>
-        </section>
-
-    </div>
+    <!-- Small corner Slope iframe -->
+    <iframe id="slope" src="https://slope-game.github.io/slope/" allowfullscreen></iframe>
 
     <script>
-        // Simple tab switching
-        function show(id) {
-            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            // If returning to eLibrary, ensure reader stays hidden unless opened
-            if (id !== 'reader') document.getElementById('reader').style.display = 'none';
-        }
+        const toggle = document.getElementById("toggle");
+        const slope = document.getElementById("slope");
+        let open = false;
 
-        // Reader page controller (same document, separate section)
-        function openReaderPage(title, author, cover, iframeUrl) {
-            // Set metadata
-            document.getElementById('rTitle').textContent = title;
-            document.getElementById('rAuthor').textContent = author;
-            document.getElementById('rCover').src = cover || '';
-            document.getElementById('rCover').alt = title || 'Cover';
-
-            // Load iframe URL
-            document.getElementById('rFrame').src = iframeUrl;
-            // // PASTE YOUR BOOK IFRAMES BY REPLACING iframeUrl IN THE .book onclick ABOVE
-
-            // External link
-            const ext = document.getElementById('rExternal');
-            ext.href = iframeUrl || '#';
-
-            // Show reader section and highlight no tab (stays in eLibrary context)
-            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-            document.getElementById('reader').style.display = 'block';
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        }
-
-        function goBack() {
-            // Clear iframe to stop playback or reader activity
-            document.getElementById('rFrame').src = '';
-            // Return to eLibrary
-            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
-            document.getElementById('elibrary').style.display = 'block';
-            // Mark eLibrary tab active
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            const tabs = Array.from(document.querySelectorAll('.tab'));
-            const elibTab = tabs.find(t => t.textContent.toLowerCase().includes('elibrary'));
-            if (elibTab) elibTab.classList.add('active');
-            // Scroll to top of eLibrary
-            document.getElementById('elibrary').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Default view
-        (function init() {
-            document.getElementById('reader').style.display = 'none';
-            document.getElementById('home').style.display = 'block';
-        })();
+        toggle.addEventListener("click", () => {
+            open = !open;
+            if (open) {
+                slope.style.display = "block";
+                toggle.textContent = "−";
+            } else {
+                slope.style.display = "none";
+                toggle.textContent = "+";
+            }
+        });
     </script>
 </body>
 
